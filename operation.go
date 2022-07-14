@@ -109,6 +109,8 @@ func (o *Operation) GetConfig() *Config {
 func (o *Operation) ioloop() {
 	var lastEnterTime int64
 
+	fmt.Fprintln(o.t.cfg.Stderr, "start operaton ioloop")
+
 	for {
 		keepInSearchMode := false
 		keepInCompleteMode := false
@@ -119,7 +121,7 @@ func (o *Operation) ioloop() {
 			// ignore quick and continous enter
 			now := time.Now().UnixMilli()
 			if now-lastEnterTime < 5 {
-				fmt.Println("enter to much 1")
+				fmt.Fprintln(o.t.cfg.Stderr, "enter to much 1")
 				continue
 			}
 			lastEnterTime = now
