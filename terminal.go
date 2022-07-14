@@ -159,12 +159,12 @@ func (t *Terminal) ioloop() {
 			break
 		}
 
-		fmt.Fprintln(f, r)
 		if r == CharEnter {
 			now := time.Now().UnixMilli()
 			ignore := false
 			// ignore quick and continous enter
 			if lastIsEnter && now-lastEnterTime < 50 {
+				fmt.Fprintln(f, "enter two much")
 				expectNextChar = true
 				ignore = true // ignore this rune
 			}
