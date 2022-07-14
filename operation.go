@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"sync"
 	"time"
 )
@@ -109,7 +110,9 @@ func (o *Operation) GetConfig() *Config {
 func (o *Operation) ioloop() {
 	var lastEnterTime int64
 
-	fmt.Fprintln(o.t.cfg.Stderr, "start operaton ioloop")
+	f, _ := os.OpenFile("/tmp/console-debug.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModeAppend|os.ModePerm)
+	defer f.Close()
+	fmt.Fprintln(f, "start operaton ioloop")
 
 	for {
 		keepInSearchMode := false
@@ -121,7 +124,7 @@ func (o *Operation) ioloop() {
 			// ignore quick and continous enter
 			now := time.Now().UnixMilli()
 			if now-lastEnterTime < 5 {
-				fmt.Fprintln(o.t.cfg.Stderr, "enter to much 1")
+				fmt.Fprintln(f, "enter to much 1")
 				continue
 			}
 			lastEnterTime = now
