@@ -123,14 +123,20 @@ func (o *Operation) ioloop() {
 
 		fmt.Fprintln(f, r)
 		if r == CharEnter {
-			lastIsEnter = true
 			now := time.Now().UnixMilli()
+			ignore := false
 			// ignore quick and continous enter
 			if lastIsEnter && now-lastEnterTime < 1000 {
 				fmt.Fprintln(f, "enter to much 1")
+				o.buf.Refresh(nil) // to refresh the line
+				ignore = true      // ignore this rune
+			}
+
+			lastEnterTime = now
+			lastIsEnter = true
+			if ignore {
 				continue
 			}
-			lastEnterTime = now
 		} else {
 			lastIsEnter = false
 		}
