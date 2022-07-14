@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"sync"
+	"time"
 )
 
 var (
@@ -105,10 +106,25 @@ func (o *Operation) GetConfig() *Config {
 }
 
 func (o *Operation) ioloop() {
+	var lastEnterTime int64
+
 	for {
 		keepInSearchMode := false
 		keepInCompleteMode := false
+
 		r := o.t.ReadRune()
+
+		if r == CharEnter && lastEnterTime != 0 {
+			// ignore quick and continous enter
+			now := time.Now().UnixMilli()
+			if now-lastEnterTime < 5 {
+				continue
+			}
+			lastEnterTime = now
+		} else {
+			lastEnterTime = 0
+		}
+
 		if o.GetConfig().FuncFilterInputRune != nil {
 			var process bool
 			r, process = o.GetConfig().FuncFilterInputRune(r)
