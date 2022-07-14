@@ -126,7 +126,7 @@ func (o *Operation) ioloop() {
 			now := time.Now().UnixMilli()
 			ignore := false
 			// ignore quick and continous enter
-			if lastIsEnter && now-lastEnterTime < 50 {
+			if lastIsEnter && now-lastEnterTime < 100 {
 				fmt.Fprintln(f, "enter to much 1")
 				o.t.KickRead()
 				ignore = true // ignore this rune
