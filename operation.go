@@ -120,6 +120,7 @@ func (o *Operation) ioloop() {
 
 		r := o.t.ReadRune()
 
+		fmt.Fprintln(f, r)
 		if r == CharEnter && lastEnterTime != 0 {
 			// ignore quick and continous enter
 			now := time.Now().UnixMilli()
