@@ -2,6 +2,7 @@ package readline
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"sync"
 	"time"
@@ -118,6 +119,7 @@ func (o *Operation) ioloop() {
 			// ignore quick and continous enter
 			now := time.Now().UnixMilli()
 			if now-lastEnterTime < 5 {
+				fmt.Println("enter to much 1")
 				continue
 			}
 			lastEnterTime = now
