@@ -2,11 +2,8 @@ package readline
 
 import (
 	"errors"
-	"fmt"
 	"io"
-	"os"
 	"sync"
-	"time"
 )
 
 var (
@@ -108,39 +105,11 @@ func (o *Operation) GetConfig() *Config {
 }
 
 func (o *Operation) ioloop() {
-	var lastEnterTime int64
-	var lastIsEnter bool
-
-	f, _ := os.OpenFile("/tmp/console-debug.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModeAppend|os.ModePerm)
-	defer f.Close()
-	fmt.Fprintln(f, "start operaton ioloop")
-
 	for {
 		keepInSearchMode := false
 		keepInCompleteMode := false
 
 		r := o.t.ReadRune()
-
-		fmt.Fprintln(f, r)
-		if r == CharEnter {
-			now := time.Now().UnixMilli()
-			ignore := false
-			// ignore quick and continous enter
-			if lastIsEnter && now-lastEnterTime < 100 {
-				fmt.Fprintln(f, "enter to much 1")
-				o.t.KickRead()
-				ignore = true // ignore this rune
-			}
-
-			lastEnterTime = now
-			lastIsEnter = true
-			if ignore {
-				continue
-			}
-		} else {
-			lastIsEnter = false
-		}
-
 		if o.GetConfig().FuncFilterInputRune != nil {
 			var process bool
 			r, process = o.GetConfig().FuncFilterInputRune(r)

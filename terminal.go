@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 type Terminal struct {
@@ -130,6 +132,13 @@ func (t *Terminal) ioloop() {
 	)
 
 	buf := bufio.NewReader(t.getStdin())
+
+	var lastEnterTime int64
+	var lastIsEnter bool
+	f, _ := os.OpenFile("/tmp/console-debug.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModeAppend|os.ModePerm)
+	defer f.Close()
+	fmt.Fprintln(f, "start operaton ioloop")
+
 	for {
 		if !expectNextChar {
 			atomic.StoreInt32(&t.isReading, 0)
@@ -148,6 +157,25 @@ func (t *Terminal) ioloop() {
 				continue
 			}
 			break
+		}
+
+		fmt.Fprintln(f, r)
+		if r == CharEnter {
+			now := time.Now().UnixMilli()
+			ignore := false
+			// ignore quick and continous enter
+			if lastIsEnter && now-lastEnterTime < 50 {
+				expectNextChar = true
+				ignore = true // ignore this rune
+			}
+
+			lastEnterTime = now
+			lastIsEnter = true
+			if ignore {
+				continue
+			}
+		} else {
+			lastIsEnter = false
 		}
 
 		if isEscape {
