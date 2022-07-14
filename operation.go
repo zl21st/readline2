@@ -109,6 +109,7 @@ func (o *Operation) GetConfig() *Config {
 
 func (o *Operation) ioloop() {
 	var lastEnterTime int64
+	var lastIsEnter bool
 
 	f, _ := os.OpenFile("/tmp/console-debug.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModeAppend|os.ModePerm)
 	defer f.Close()
@@ -121,16 +122,17 @@ func (o *Operation) ioloop() {
 		r := o.t.ReadRune()
 
 		fmt.Fprintln(f, r)
-		if r == CharEnter && lastEnterTime != 0 {
-			// ignore quick and continous enter
+		if r == CharEnter {
+			lastIsEnter = true
 			now := time.Now().UnixMilli()
-			if now-lastEnterTime < 100 {
+			// ignore quick and continous enter
+			if lastIsEnter && now-lastEnterTime < 100 {
 				fmt.Fprintln(f, "enter to much 1")
 				continue
 			}
 			lastEnterTime = now
 		} else {
-			lastEnterTime = 0
+			lastIsEnter = false
 		}
 
 		if o.GetConfig().FuncFilterInputRune != nil {
