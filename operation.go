@@ -126,7 +126,7 @@ func (o *Operation) ioloop() {
 			lastIsEnter = true
 			now := time.Now().UnixMilli()
 			// ignore quick and continous enter
-			if lastIsEnter && now-lastEnterTime < 100 {
+			if lastIsEnter && now-lastEnterTime < 1000 {
 				fmt.Fprintln(f, "enter to much 1")
 				continue
 			}
