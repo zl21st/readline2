@@ -381,10 +381,10 @@ func (o *Operation) Runes() ([]rune, error) {
 	// o.t.EnterRawMode()
 	// defer o.t.ExitRawMode()
 
-	// listener := o.GetConfig().Listener
-	// if listener != nil {
-	// 	listener.OnChange(nil, 0, 0)
-	// }
+	listener := o.GetConfig().Listener
+	if listener != nil {
+		listener.OnChange(nil, 0, 0)
+	}
 
 	o.buf.Refresh(nil) // print prompt
 	o.t.KickRead()
