@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"sync"
+	"time"
 )
 
 var (
@@ -381,22 +382,31 @@ func (o *Operation) Runes() ([]rune, error) {
 	o.t.EnterRawMode()
 	defer o.t.ExitRawMode()
 
-	// listener := o.GetConfig().Listener
-	// if listener != nil {
-	// 	listener.OnChange(nil, 0, 0)
-	// }
+	listener := o.GetConfig().Listener
+	if listener != nil {
+		listener.OnChange(nil, 0, 0)
+	}
 
 	o.buf.Refresh(nil) // print prompt
 	o.t.KickRead()
-	select {
-	case r := <-o.outchan:
-		return r, nil
-	case err := <-o.errchan:
-		if e, ok := err.(*InterruptError); ok {
-			return e.Line, ErrInterrupt
+	time.Sleep(time.Millisecond * 10)
+	t := time.NewTicker(time.Second * 1)
+	defer t.Stop()
+
+	for {
+		select {
+		case r := <-o.outchan:
+			return r, nil
+		case <-t.C:
+			o.t.KickRead()
+		case err := <-o.errchan:
+			if e, ok := err.(*InterruptError); ok {
+				return e.Line, ErrInterrupt
+			}
+			return nil, err
 		}
-		return nil, err
 	}
+
 }
 
 func (o *Operation) PasswordEx(prompt string, l Listener) ([]byte, error) {
